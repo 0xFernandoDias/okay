@@ -1,0 +1,10 @@
+.libignore
+.config
+.env
+.git
+.gitignore
+./README.md
+./build.sh
+./clone.sh
+./deploy.sh
+./docker-compose.example.yml

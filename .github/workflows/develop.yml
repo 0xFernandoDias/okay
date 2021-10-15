@@ -1,0 +1,35 @@
+name: D3 Library Micro front-end Template - Deploy Pipeline
+
+on:
+  push:
+    branches: [ dev ]
+  
+jobs:
+  Pipeline:
+    runs-on: ubuntu-latest
+    # needs: cypress-run
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Config AWS
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_KEY }}
+        aws-secret-access-key: ${{ secrets.AWS_SEC }}
+        aws-region: us-east-1
+
+    - name: Pipeline Scripts
+      run: |
+        bash main.sh
+      env:
+        PIPELINE: "true"
+        KEYS: ${{ secrets.PRIVATE_KEYS_REPOS }}
+        ECR_REPOSITORY: "929907635541.dkr.ecr.us-east-1.amazonaws.com"
+        RANCHER_URL_API: ${{ secrets.RANCHER_URL_API }}
+        RANCHER_ACCESS_KEY: ${{ secrets.RANCHER_ACCESS_KEY }}
+        RANCHER_SECRET_KEY: ${{ secrets.RANCHER_SECRET_KEY }}
+
+    - name: List Project Images
+      run: |
+        docker images

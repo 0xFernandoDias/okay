@@ -1,0 +1,73 @@
+#!/bin/bash
+
+# d3-lib/cmds/
+#functions go here
+# show_help (or something that will execute a -? parameter is REQUIRED)
+# ----------------------------------------------------------------------------------------
+show_short_help()
+{
+	echo "update all lib files that are not in .libignore"
+}
+
+show_help()
+{
+	echo ""
+		
+}
+
+
+while getopts "h?H" opt; do
+  case "$opt" in
+    h|\?)
+      show_short_help
+      exit 0
+      ;;
+    H)
+      show_help
+      exit 0
+      ;;
+  esac
+done
+
+
+# ----------------------------------------------------------------------------------------
+#Your Command MAIN code goes below 
+
+echo "Do you really want to update the d3-lib? Y/N"
+read RESP
+
+if [ $RESP == "Y" ] || [ $RESP == "y" ];
+  then
+    echo "D3-Lib Update"
+
+    DIR="$ABSOLUTE_PROJECT_PATH/d3update"
+
+    if git clone git@github.com:d3estudio/d3-lib.git $DIR
+      then
+        FILE=$(cat $ABSOLUTE_PROJECT_PATH/.libignore)
+
+        cd $DIR
+        #Remove o .git/ da d3-lib temp para não sobrescrever o de quem chamou o update
+
+        if [ $PWD == $DIR ];
+          then
+            rm -rf .git/
+          
+            #verifica e remove todos os arquivos .libignore
+            for file in $FILE
+            do 
+              rm -rf $DIR/$file
+            done
+
+            cp -R $DIR/. $ABSOLUTE_PROJECT_PATH
+            echo "now exit and enter d3shell for the changes to take place"
+          else
+            echo "update error"
+        fi
+        rm -rf $DIR
+        cd $ABSOLUTE_PROJECT_PATH
+      else
+        echo "error during cloning"
+    fi
+fi
+

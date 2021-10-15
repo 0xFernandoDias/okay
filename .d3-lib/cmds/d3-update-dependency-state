@@ -1,0 +1,153 @@
+#!/bin/bash
+
+# d3-lib/cmds/
+#functions go here
+# show_help (or something that will execute a -? parameter is REQUIRED)
+# ----------------------------------------------------------------------------------------
+show_short_help()
+{
+	echo "Updates .config hashes from latest to most recent ones."
+}
+
+show_help()
+{
+	show_short_help
+	echo " 	Updates .config file to use the most recent hashes from the dependencies, as an easy way to make pull requests to master branch."
+    echo "  Please, note that this command will rewrite your .config file. If you have comments of your own that you need to keep, DO NOT USE THIS COMMAND."
+    echo "--affect-latest-only : Only repos with the LATEST hash will be updated."
+    echo "--to-latest          : Does the reverse work, turning all hashes into LATEST."
+	echo "		 	https://github.com/d3estudio/d3-lib"
+	
+}
+
+# Variables
+LATEST_CHANGE="from"
+ONLY_LATEST=false
+
+# Transform long options to short ones
+for arg in "$@"; do
+  shift
+  case "$arg" in
+    "--to-latest") set -- "$@" "-l" ;;
+    "--affect-latest-only") set -- "$@" "-o" ;;
+    *) set -- "$@" "$arg"
+  esac
+done
+
+while getopts "h?Hlo" opt; do
+  case "$opt" in
+    h|\?)
+      show_short_help
+      exit 0
+      ;;
+    H)
+      show_help
+      exit 0
+      ;;
+    (l)
+        LATEST_CHANGE="to"
+        shift;;
+    (o)
+        ONLY_LATEST=true
+        shift;;
+    (--)  
+        shift
+        break;;
+  esac
+done
+
+
+
+# ----------------------------------------------------------------------------------------
+run(){
+    current_directory=$(pwd) > /dev/null
+    cd $ABSOLUTE_PROJECT_PATH
+
+    source .d3-lib/clone_module.sh
+
+    let "LATEST_OCCURRENCES++"
+
+    #Execution
+
+    #Checking if .config file exists
+    if [ ! -f "$ABSOLUTE_PROJECT_PATH/.config" ]; then
+        echo " "
+        echo "Couldn't find the project .config file."
+        echo "Please, make sure your project have a .config file and it is following the library's guideline."
+        echo " "
+        exit 1
+    fi
+
+    #Taking info from .config file
+    arraySetUp
+    for repo in "${!ARRAY_REPOS[@]}"
+    do
+        REPOITEMS=();
+        for repoItem in ${ARRAY_REPOS[repo]}
+        do
+            [[ !$repoItem  && "$repoItem" != "," ]] &&  REPOITEMS+=("${repoItem} ");
+        done
+        repoUrl=${REPOITEMS[0]};    
+        repoBranch=${REPOITEMS[1]};
+        repoHash=${REPOITEMS[2]};
+        repoPath=${REPOITEMS[3]};
+
+        #Checking if repo directory exists
+        if [ ! -d $ABSOLUTE_PROJECT_PATH${repoPath:1} ]; then
+            echo " "
+            echo "-----------------------------WARNING-----------------------------"
+            echo " "
+            echo "The dependencies directories couldn't be found."
+            echo "If you didn't clone them yet, please use the following command:"
+            echo " "
+            echo "    d3-clone    "
+            echo " "
+            exit 2
+        fi
+
+        #Trimming white spaces
+        repoHash=$(echo $repoHash | xargs)
+        
+        #Getting most recent hash and name from repo
+        cd $repoPath
+        newRepoHash=$(git rev-parse HEAD)
+        repoName=$(basename -s .git `git config --get remote.origin.url`)
+        cd - >/dev/null
+
+        #Spliting .config file
+        cat .config | grep '#' > .configComments
+        cat .config | sed '/^[[:blank:]]*#/d;s/#.*//' | sed '/^[[:space:]]*$/d' > .configNoComments
+
+        #Making the changes in .config file
+        if [ $LATEST_CHANGE == "from" ]; then
+            if [[ "$ONLY_LATEST" == true ]]; then
+                if [[ "$repoHash" == "LATEST" ]]; then
+                    $(tr "\n" "\z" < .configNoComments | sed "s/LATEST/$newRepoHash/" | tr "\z" "\n" > .config.tmp) && \
+                    rm .config && cat .configComments .config.tmp > .config
+                    echo "Changed $repoName hash from $repoHash to $newRepoHash"
+                fi
+            else
+                $(tr "\n" "\z" < .configNoComments | sed "s/$repoHash/$newRepoHash/" | tr "\z" "\n" > .config.tmp) && \
+                rm .config && cat .configComments .config.tmp > .config
+                echo "Changed $repoName hash from $repoHash to $newRepoHash"
+            fi
+        else
+            newRepoHash="LATEST"
+            $(tr "\n" "\z" < .configNoComments | sed "s/$repoHash/$newRepoHash/" | tr "\z" "\n" > .config.tmp) && \
+            rm .config && cat .configComments .config.tmp > .config
+            echo "Changed $repoName hash from $repoHash to $newRepoHash"
+        fi
+        rm .configComments && rm .configNoComments && rm .config.tmp &> /dev/null
+    done
+}
+
+echo "WARNING! This command will rewrite your .config file."
+read -r -p "Are you sure you want to run it? [y/N] " response
+case "$response" in
+    [yY][eE][sS]|[yY]) 
+        run
+        ;;
+    *)
+        exit 0
+        ;;
+esac

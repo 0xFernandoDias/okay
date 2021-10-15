@@ -1,0 +1,65 @@
+ #!/bin/bash
+
+# d3-lib/cmds/
+#functions go here
+# show_help (or something that will execute a -? parameter is REQUIRED)
+# ----------------------------------------------------------------------------------------
+show_short_help()
+{
+        echo "Customizes/Initializes the template into YOUR project"
+}
+
+show_help()
+{
+        show_short_help
+        echo " Customizes the template by filling some information regarding your own project "
+        echo "                  https://github.com/d3estudio/d3-lib"
+
+}
+
+while getopts "h?H" opt; do
+  case "$opt" in
+    h|\?)
+      show_short_help
+      exit 0
+      ;;
+    H)
+      show_help
+      exit 0
+      ;;
+  esac
+done
+
+
+#------------------------------
+
+
+myPath=$ABSOLUTE_PROJECT_PATH
+
+echo "Directory is $myPath"
+cd $myPath
+dirname=${PWD##*/} 
+
+
+echo "Re-configuring the repository x00_template :"
+read -e -p "Project Name: " -i "$dirname" PROJECT_NAME
+read -e -p "Author Name: " -i "d3.do" AUTHOR_NAME
+read -e -p "Project Date: " -i "$(date +'%Y')" PROJECT_DATE
+read -e -p "Project URL: " -i "http://d3.do" PROJECT_URL
+#read -e -p "Group ID: " -i "com.hackeneering.templates" GROUP_ID
+
+
+echo "Hello $AUTHOR_NAME , creating $PROJECT_NAME ($PROJECT_URL $PROJECT_DATE )"
+echo "pom file will be generated with group id $GROUP_ID and artifact name $PROJECT_NAME"
+
+echo PROJECT_NAME=$PROJECT_NAME > env.sh
+echo AUTHOR_NAME=$AUTHOR_NAME >> env.sh
+echo PROJECT_DATE=$PROJECT_DATE >> env.sh
+echo PROJECT_URL=$PROJECT_URL >> env.sh
+echo GROUP_ID=$GROUP_ID >> env.sh
+
+docker container run --rm -it --env-file=./env.sh -v $(pwd):/wd bhgedigital/envsubst sh -c "envsubst < /wd/.d3-lib/sample/README.md.src > /wd/README.md" 
+#docker container run --rm -it --env-file=./env.sh -v $(pwd):/wd bhgedigital/envsubst sh -c "envsubst < /wd/.d3-lib/sample/pom.xml.src > /wd/pom.xml" 
+#docker container run --rm -it --env-file=./env.sh -v $(pwd):/wd bhgedigital/envsubst sh -c "envsubst < /wd/.d3-lib/sample/.project.src > /wd/.project" 
+
+read -e -p "Quit?: " -i "yup" QUITVAR

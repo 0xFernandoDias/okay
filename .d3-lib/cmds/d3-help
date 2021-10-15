@@ -1,0 +1,60 @@
+#!/bin/bash
+
+# d3-lib/cmds/
+#functions go here
+# show_help (or something that will execute a -? parameter is REQUIRED)
+# ----------------------------------------------------------------------------------------
+show_short_help()
+{
+	echo "shows help for every d3shell/d3lib command"
+}
+
+show_help()
+{
+	show_short_help
+	echo " 	usage: d3-help"
+	
+}
+
+
+while getopts "h?H" opt; do
+  case "$opt" in
+    h|\?)
+      show_short_help
+      exit 0
+      ;;
+    H)
+      show_help
+      exit 0
+      ;;
+  esac
+done
+
+
+
+# ----------------------------------------------------------------------------------------
+#Your Command MAIN code goes below 
+
+
+
+echo "d3help"
+
+#TODO: iterate over all tools in this subfolder and run them with a --quick-help cmd
+cd $ABSOLUTE_PROJECT_PATH/.d3-lib/cmds/
+echo ""
+echo "cmds: "
+echo ""
+FILES="./*"
+for f in $FILES
+	do
+		echo "	$(basename $f) 	-> $(bash $f -?)"
+	done
+
+echo ""
+echo "aliases: "
+echo ""
+echo "	d3-cd		-> cd's into the project root directory"
+
+echo "env vars:"
+echo ""
+echo "	ABSOLUTE_PROJECT_PATH		-> full path to the project's root"

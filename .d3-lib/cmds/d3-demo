@@ -1,0 +1,41 @@
+#!/bin/bash
+
+# d3-lib/cmds/
+#functions go here
+# show_help (or something that will execute a -? parameter is REQUIRED)
+# ----------------------------------------------------------------------------------------
+show_short_help()
+{
+	echo "sample command that can be used as a template for your own commands"
+}
+
+show_help()
+{
+	show_short_help
+	echo " 	So , you managed to come up with a great new command for d3-lib? why not contribute it back to the main repo at:"
+	echo "		 	https://github.com/d3estudio/d3-lib"
+	
+}
+
+
+while getopts "h?H" opt; do
+  case "$opt" in
+    h|\?)
+      show_short_help
+      exit 0
+      ;;
+    H)
+      show_help
+      exit 0
+      ;;
+  esac
+done
+
+
+
+# ----------------------------------------------------------------------------------------
+#Your Command MAIN code goes below 
+
+
+
+echo "This command is only a sample, it just prints out this line with the current date : $(date)"

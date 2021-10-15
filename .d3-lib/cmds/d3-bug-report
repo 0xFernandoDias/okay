@@ -1,0 +1,69 @@
+#!/bin/bash
+
+# d3-lib/cmds/
+#functions go here
+# show_help (or something that will execute a -? parameter is REQUIRED)
+# ----------------------------------------------------------------------------------------
+show_short_help()
+{
+	echo "instructions for reporting bugs in the d3-lib project"
+}
+
+show_help()
+{
+	show_short_help
+		
+}
+
+
+
+
+while getopts "h?H" opt; do
+  case "$opt" in
+    h|\?)
+      show_short_help
+      exit 0
+      ;;
+    H)
+      show_help
+      exit 0
+      ;;
+  esac
+done
+
+
+
+
+
+# ----------------------------------------------------------------------------------------
+#Your Command MAIN code goes below 
+
+# Função para identificar o sistema operacional
+system_check(){
+    if [[ $OSTYPE == "linux"* ]]; then
+        operational_system="Linux"
+    elif [[ $OSTYPE == "darwin"* ]]; then
+        operational_system="OSX"
+    elif [[ $OSTYPE == "msys"* ]]; then
+        operational_system="Windows"
+    else
+        operational_system=$OSTYPE
+    fi
+}
+
+system_check
+
+case $operational_system in
+	"Linux")
+		xdg-open https://github.com/d3estudio/d3-lib/issues > /dev/null 2>&1
+	;;
+	"Windows")
+		start https://github.com/d3estudio/d3-lib/issues
+	;;
+	"OSX")
+		open https://github.com/d3estudio/d3-lib/issues
+	;;
+esac
+
+echo "Please create an issue in the following url: https://github.com/d3estudio/d3-lib/issues"
+echo "please describe"

@@ -1,0 +1,40 @@
+#!/bin/bash
+
+# d3-lib/cmds/
+#functions go here
+# show_help (or something that will execute a -? parameter is REQUIRED)
+# ----------------------------------------------------------------------------------------
+show_short_help()
+{
+	 echo "builds the project by running $ABSOLUTE_PROJECT_PATH/build.sh"
+}
+
+show_help()
+{
+	show_short_help
+	echo " this can be customized by the developer to run customized build scripts"
+	echo " by editing the build.sh script..."
+	
+}
+
+
+while getopts "h?H" opt; do
+  case "$opt" in
+    h|\?)
+      show_short_help
+      exit 0
+      ;;
+    H)
+      show_help
+      exit 0
+      ;;
+  esac
+done
+
+
+# ----------------------------------------------------------------------------------------
+#Your Command MAIN code goes below 
+
+cd $ABSOLUTE_PROJECT_PATH
+
+bash ./build.sh

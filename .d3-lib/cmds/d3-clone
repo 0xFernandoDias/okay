@@ -1,0 +1,43 @@
+#!/bin/bash
+
+# d3-lib/cmds/
+#functions go here
+# show_help (or something that will execute a -? parameter is REQUIRED)
+# ----------------------------------------------------------------------------------------
+
+show_short_help()
+{
+	 echo "clones the project's dependencies by running $ABSOLUTE_PROJECT_PATH/clone.sh"
+}
+
+show_help()
+{
+	show_short_help
+	echo " this can be customized by the developer to run customized clonning and dependency checks/builds"
+	echo " by editing the clone.sh script ."
+	echo " The default behavior is to recursively clone all dependencies configured in the .config file"
+	
+}
+
+
+while getopts "h?H" opt; do
+  case "$opt" in
+    h|\?)
+      show_short_help
+      exit 0
+      ;;
+    H)
+      show_help
+      exit 0
+      ;;
+  esac
+done
+
+
+
+# ----------------------------------------------------------------------------------------
+#Your Command MAIN code goes below 
+
+cd $ABSOLUTE_PROJECT_PATH
+
+bash ./clone.sh

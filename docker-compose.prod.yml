@@ -1,0 +1,37 @@
+version: "3.9"
+networks:
+    d3-mfe-network:
+services:
+
+  d3-root-config:
+        build: ./src/root
+        dockerfile: Dockerfile.prod
+        image: d3-root-config
+        ports:
+            - "9000:80"
+        networks:
+            - d3-mfe-network
+  d3-app-mfe:
+        build: ./src/mfes/app-mfe
+        dockerfile: Dockerfile.prod
+        image: d3-app-mfe
+        ports:
+            - "8501:80"
+        networks:
+            - d3-mfe-network
+  d3-navbar-mfe:
+        build: ./src/mfes/navbar-mfe
+        dockerfile: Dockerfile.prod
+        image: d3-navbar-mfe
+        ports:
+            - "8502:80"
+        networks:
+            - d3-mfe-network
+  d3-secondary-mfe:
+        build: ./src/mfes/secondary-mfe
+        dockerfile: Dockerfile.prod
+        image: d3-secondary-mfe
+        ports:
+            - "8503:80"
+        networks:
+            - d3-mfe-network
